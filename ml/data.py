@@ -1,18 +1,14 @@
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer, OneHotEncoder
 
-
 def process_data(
     X, categorical_features=[], label=None, training=True, encoder=None, lb=None
 ):
     """ Process the data used in the machine learning pipeline.
-
+    
     Processes the data using one hot encoding for the categorical features and a
     label binarizer for the labels. This can be used in either training or
     inference/validation.
-
-    Note: depending on the type of model used, you may want to add in functionality that
-    scales the continuous data.
 
     Inputs
     ------
@@ -43,7 +39,6 @@ def process_data(
         Trained LabelBinarizer if training is True, otherwise returns the binarizer
         passed in.
     """
-
     if label is not None:
         y = X[label]
         X = X.drop([label], axis=1)
@@ -51,20 +46,21 @@ def process_data(
         y = np.array([])
 
     X_categorical = X[categorical_features].values
-    X_continuous = X.drop(*[categorical_features], axis=1)
+    X_continuous = X.drop(columns=categorical_features).values  # Ensure it's a numpy array
 
-    if training is True:
-        encoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
+    # Handle categorical features
+    if training:
+        encoder = OneHotEncoder(sparse_output=False)  # Make sure to set sparse=False to return a dense array
         lb = LabelBinarizer()
         X_categorical = encoder.fit_transform(X_categorical)
-        y = lb.fit_transform(y.values).ravel()
+        y = lb.fit_transform(y).ravel()  # Ensure y is a 1D array
     else:
         X_categorical = encoder.transform(X_categorical)
         try:
-            y = lb.transform(y.values).ravel()
-        # Catch the case where y is None because we're doing inference.
+            y = lb.transform(y).ravel()  # Ensure y is a 1D array
         except AttributeError:
             pass
 
+    # Concatenate continuous and categorical features
     X = np.concatenate([X_continuous, X_categorical], axis=1)
     return X, y, encoder, lb
