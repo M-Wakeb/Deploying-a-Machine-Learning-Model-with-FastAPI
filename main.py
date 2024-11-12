@@ -8,23 +8,30 @@ from ml.model import inference
 import pandas as pd
 
 # DVC Pull
-if os.path.isdir(".dvc"):
-    os.system("dvc config core.no_scm true")
-    if os.system("dvc pull") != 0:
-        raise RuntimeError("DVC pull failed. Check if DVC is correctly configured.")
+# if os.path.isdir(".dvc"):
+#     os.system("dvc config core.no_scm true")
+#     if os.system("dvc pull") != 0:
+#         raise RuntimeError("DVC pull failed. Check if DVC is correctly configured.")
 
 # Initialize API object
 app = FastAPI()
 
 # Load model and encoders
 file_dir = os.path.dirname(__file__)
-model_path = os.path.join(file_dir, './model/rf_model.pkl')
-encoder_path = os.path.join(file_dir, './model/encoder.pkl')
-lb_path = os.path.join(file_dir, './model/lb.pkl')
+model_path = os.path.join(file_dir, 'model/rf_model.pkl')
+encoder_path = os.path.join(file_dir, 'model/encoder.pkl')
+lb_path = os.path.join(file_dir, 'model/lb.pkl')
 
+# Check if the model files exist
+print(f"Model path: {model_path}")
+print(f"Encoder path: {encoder_path}")
+print(f"Label binarizer path: {lb_path}")
+
+# Load the model, encoder, and label binarizer
 model = pickle.load(open(model_path, 'rb'))
 encoder = pickle.load(open(encoder_path, 'rb'))
 lb = pickle.load(open(lb_path, 'rb'))
+
 
 # Define the input data schema
 class InputData(BaseModel):
