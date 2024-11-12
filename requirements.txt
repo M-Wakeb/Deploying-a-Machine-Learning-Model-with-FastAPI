@@ -1,2 +1,11 @@
-pytest
+numpy
 pandas
+scikit-learn
+pytest
+requests
+fastapi
+uvicorn
+dvc
+dvc[gdrive]
+pyrootutils
+httpx
