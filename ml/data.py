@@ -53,13 +53,16 @@ def process_data(
         encoder = OneHotEncoder(sparse_output=False)  # Make sure to set sparse=False to return a dense array
         lb = LabelBinarizer()
         X_categorical = encoder.fit_transform(X_categorical)
-        y = lb.fit_transform(y).ravel()  # Ensure y is a 1D array
+        
+        # Check if y is empty before transforming it
+        if y.size > 0:  # Only apply binarizer if y is not empty
+            y = lb.fit_transform(y).ravel()  # Ensure y is a 1D array
     else:
         X_categorical = encoder.transform(X_categorical)
-        try:
+        
+        # Only apply LabelBinarizer if y is not empty
+        if y.size > 0 and lb is not None:
             y = lb.transform(y).ravel()  # Ensure y is a 1D array
-        except AttributeError:
-            pass
 
     # Concatenate continuous and categorical features
     X = np.concatenate([X_continuous, X_categorical], axis=1)

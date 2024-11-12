@@ -6,17 +6,17 @@ import os
 from ml.data import process_data
 from ml.model import inference
 import pandas as pd
-import numpy as np
 
+# DVC Pull
 if os.path.isdir(".dvc"):
     os.system("dvc config core.no_scm true")
     if os.system("dvc pull") != 0:
-        exit("dvc pull failed")
-        
+        raise RuntimeError("DVC pull failed. Check if DVC is correctly configured.")
+
 # Initialize API object
 app = FastAPI()
 
-# Load model
+# Load model and encoders
 file_dir = os.path.dirname(__file__)
 model_path = os.path.join(file_dir, './model/rf_model.pkl')
 encoder_path = os.path.join(file_dir, './model/encoder.pkl')
@@ -26,9 +26,8 @@ model = pickle.load(open(model_path, 'rb'))
 encoder = pickle.load(open(encoder_path, 'rb'))
 lb = pickle.load(open(lb_path, 'rb'))
 
-
+# Define the input data schema
 class InputData(BaseModel):
-    # Using the first row of census.csv as sample
     age: int = Field(None, example=39)
     workclass: str = Field(None, example='State-gov')
     fnlgt: int = Field(None, example=77516)
@@ -44,12 +43,12 @@ class InputData(BaseModel):
     hours_per_week: int = Field(None, example=40)
     native_country: str = Field(None, example='United-States')
 
-
+# Welcome endpoint
 @app.get('/')
 async def welcome():
-    return "Welcome!"
+    return "Welcome to the model prediction API!"
 
-
+# Prediction endpoint
 @app.post('/predict')
 async def predict(data: InputData):
     cat_features = [
@@ -62,8 +61,12 @@ async def predict(data: InputData):
         "sex",
         "native-country",
     ]
-    sample = {key.replace('_', '-'): [value] for key, value in data.__dict__.items()}
+    
+    # Convert the input data to a DataFrame
+    sample = {key.replace('_', '-'): [value] for key, value in data.dict().items()}
     input_data = pd.DataFrame.from_dict(sample)
+    
+    # Process the input data
     X, _, _, _ = process_data(
         input_data,
         categorical_features=cat_features,
@@ -72,13 +75,14 @@ async def predict(data: InputData):
         encoder=encoder,
         lb=lb
     )
+     
+    # Make the prediction
     output = inference(model=model, X=X)[0]
     str_out = '<=50K' if output == 0 else '>50K'
+    
+    # Return the prediction result
     return {"pred": str_out}
 
-
+# Run the application using uvicorn
 if __name__ == '__main__':
-    config = uvicorn.config("main:app", host="0.0.0.0",
-                            reload=True, port=4000, log_level="info")
-    server = uvicorn.Server(config)
-    server.run()
+    uvicorn.run("main:app", host="0.0.0.0", port=8050, reload=True, log_level="info")
