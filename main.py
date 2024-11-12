@@ -79,6 +79,6 @@ async def predict(data: InputData):
 
 if __name__ == '__main__':
     config = uvicorn.config("main:app", host="0.0.0.0",
-                            reload=True, port=10000, log_level="info")
+                            reload=True, port=4000, log_level="info")
     server = uvicorn.Server(config)
     server.run()
