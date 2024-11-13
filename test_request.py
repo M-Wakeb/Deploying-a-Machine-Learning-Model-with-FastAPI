@@ -16,14 +16,9 @@ data = {"age": 52,
         "hours_per_week": 40,
         "native_country": "United-States"
         }
-url = "https://deploying-a-machine-learning-model-with-tctu.onrender.com"
-action = "/predict"
-link = url + action
-print(link)
+
 response = requests.post(
-    link,
-    data=json.dumps(data)
-)
+    "https://deploying-a-machine-learning-model-with-tctu.onrender.com/predict", data=json.dumps(data))
 
 print(response.status_code)
 print(response.json())

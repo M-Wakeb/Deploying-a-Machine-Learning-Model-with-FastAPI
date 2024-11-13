@@ -7,4 +7,3 @@ fastapi
 uvicorn
 pyrootutils
 httpx
-flake8
