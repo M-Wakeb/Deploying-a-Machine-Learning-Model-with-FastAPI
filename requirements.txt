@@ -8,3 +8,4 @@ scikit_learn
 setuptools
 uvicorn
 flake8
+httpx
