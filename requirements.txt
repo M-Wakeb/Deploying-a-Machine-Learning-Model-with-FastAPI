@@ -1,10 +1,10 @@
-fastapi
 numpy
 pandas
 pydantic
+scikit-learn
 pytest
-Requests
-scikit_learn
+requests
+fastapi==0.63.0
 setuptools
 uvicorn
 flake8
