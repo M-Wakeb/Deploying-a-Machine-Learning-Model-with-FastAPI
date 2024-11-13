@@ -5,7 +5,5 @@ pytest
 requests
 fastapi
 uvicorn
-dvc
-dvc[gdrive]
 pyrootutils
 httpx
